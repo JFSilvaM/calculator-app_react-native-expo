@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/theme";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -6,11 +5,13 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { View } from "react-native";
 
+import { globalStyles } from "@/styles/global-styles";
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    SpaceMono: require("@/assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ backgroundColor: Colors.background, flex: 1 }}>
+    <View style={globalStyles.background}>
       <Slot />
 
       <StatusBar style="light" />
