@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 enum Operator {
   add = "+",
   subtract = "-",
-  multiply = "*",
+  multiply = "×",
   divide = "÷",
 }
 
@@ -15,8 +15,18 @@ export const useCalculator = () => {
   const lastOperation = useRef<Operator | undefined>(undefined);
 
   useEffect(() => {
-    setFormula(number);
+    if (lastOperation.current) {
+      const firstFormulaPart = formula.split(" ").at(0);
+      setFormula(`${firstFormulaPart} ${lastOperation.current} ${number}`);
+    } else {
+      setFormula(number);
+    }
   }, [number]);
+
+  useEffect(() => {
+    const subResult = calculateSubResult();
+    setPrevNumber(`${subResult}`);
+  }, [formula]);
 
   const clean = () => {
     setNumber("0");
@@ -46,6 +56,65 @@ export const useCalculator = () => {
     setNumber("0");
   };
 
+  const setLastNumber = () => {
+    calculateResult();
+
+    if (number.endsWith(".")) setPrevNumber(number.slice(0, -1));
+
+    setPrevNumber(number);
+    setNumber("0");
+  };
+
+  const divideOperation = () => {
+    setLastNumber();
+    lastOperation.current = Operator.divide;
+  };
+
+  const multiplyOperation = () => {
+    setLastNumber();
+    lastOperation.current = Operator.multiply;
+  };
+
+  const subtractOperation = () => {
+    setLastNumber();
+    lastOperation.current = Operator.subtract;
+  };
+
+  const addOperation = () => {
+    setLastNumber();
+    lastOperation.current = Operator.add;
+  };
+
+  const calculateSubResult = () => {
+    const [firstNumber, operation, secondNumber] = formula.split(" ");
+
+    const num1 = Number(firstNumber);
+    const num2 = Number(secondNumber);
+
+    if (isNaN(num2)) return num1;
+
+    switch (operation) {
+      case Operator.add:
+        return num1 + num2;
+      case Operator.subtract:
+        return num1 - num2;
+      case Operator.multiply:
+        return num1 * num2;
+      case Operator.divide:
+        return num1 / num2;
+      default:
+        throw new Error(`Operation ${operation} is not supported`);
+    }
+  };
+
+  const calculateResult = () => {
+    const result = calculateSubResult();
+    setFormula(`${result}`);
+
+    lastOperation.current = undefined;
+    setPrevNumber(`0`);
+  };
+
   const buildNumber = (numberString: string) => {
     if (number.includes(".") && numberString === ".") return;
 
@@ -72,5 +141,10 @@ export const useCalculator = () => {
     clean,
     toggleSign,
     deleteLast,
+    divideOperation,
+    multiplyOperation,
+    subtractOperation,
+    addOperation,
+    calculateResult,
   };
 };
